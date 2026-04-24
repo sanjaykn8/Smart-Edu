@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/lib/store';
 import { TopNav } from '@/components/TopNav';
@@ -20,14 +20,8 @@ const LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
 export default function CourseSelectionPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [level, setLevel] = useState<string>('Beginner');
-  const { user, selectCourse } = useAppStore();
+  const selectCourse = useAppStore((s) => s.selectCourse);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!user) navigate('/login', { replace: true });
-  }, [user, navigate]);
-
-  if (!user) return null;
 
   const handleContinue = () => {
     if (selected) {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore, inferProficiency, recommendCourse } from '@/lib/store';
 import { TopNav } from '@/components/TopNav';
@@ -20,16 +20,10 @@ export default function AssessmentPage() {
   });
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login', { replace: true });
-      return;
-    }
-    if (!selectedCourse) {
-      navigate('/courses', { replace: true });
-    }
+    if (!user || !selectedCourse) navigate('/courses');
   }, [user, selectedCourse, navigate]);
 
-  if (!user || !selectedCourse) return null;
+  if (!selectedCourse || !user) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

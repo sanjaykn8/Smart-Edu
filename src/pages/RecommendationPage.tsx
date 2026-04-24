@@ -6,6 +6,7 @@ import { StepIndicator } from '@/components/StepIndicator';
 import { ProgressRing } from '@/components/ProgressRing';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles, BookOpen, Target } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function RecommendationPage() {
   const { assessments, user } = useAppStore();
@@ -13,16 +14,10 @@ export default function RecommendationPage() {
   const latest = assessments[assessments.length - 1];
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login', { replace: true });
-      return;
-    }
-    if (!latest) {
-      navigate('/courses', { replace: true });
-    }
+    if (!user || !latest) navigate('/courses');
   }, [user, latest, navigate]);
 
-  if (!user || !latest) return null;
+  if (!latest || !user) return null;
 
   const proficiencyScore = latest.proficiency === 'Advanced' ? 90 : latest.proficiency === 'Intermediate' ? 60 : 30;
   const proficiencyColor = latest.proficiency === 'Advanced' ? 'hsl(142 71% 45%)' : latest.proficiency === 'Intermediate' ? 'hsl(38 92% 50%)' : 'hsl(230 65% 55%)';
@@ -46,6 +41,7 @@ export default function RecommendationPage() {
         </div>
 
         <div className="mt-8 grid gap-6 stagger-children">
+          {/* Proficiency card */}
           <div className="rounded-xl border bg-card p-6 shadow-soft">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <ProgressRing value={proficiencyScore} size={100} strokeWidth={8} color={proficiencyColor} label="Proficiency" />
@@ -64,6 +60,7 @@ export default function RecommendationPage() {
             </div>
           </div>
 
+          {/* AI Recommendation - subtle */}
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-6">
             <div className="flex items-start gap-3">
               <div className="mt-0.5 rounded-lg bg-primary/10 p-2">
@@ -77,6 +74,7 @@ export default function RecommendationPage() {
             </div>
           </div>
 
+          {/* Study plan breakdown */}
           <div className="rounded-xl border bg-card p-6 shadow-soft">
             <div className="flex items-center gap-2 mb-4">
               <BookOpen className="h-4 w-4 text-muted-foreground" />

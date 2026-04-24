@@ -14,7 +14,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) navigate('/login', { replace: true });
+    if (!user) navigate('/login');
   }, [user, navigate]);
 
   if (!user) return null;
@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const dominant = Object.entries(profCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
 
   const latest = assessments[assessments.length - 1];
-  const streak = Math.min(attempts, 7);
+  const streak = Math.min(attempts, 7); // Simple streak
 
   const courseBreakdown = assessments.reduce((acc, a) => {
     if (!acc[a.course]) acc[a.course] = { total: 0, quizSum: 0, examSum: 0 };
@@ -45,6 +45,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background">
       <TopNav />
       <div className="container max-w-6xl py-8">
+        {/* Hero */}
         <div className="animate-fade-in rounded-2xl border bg-card p-6 sm:p-8 shadow-soft">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
@@ -60,6 +61,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Metrics */}
         <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
           <MetricCard icon={Hash} label="Attempts" value={attempts} subtitle="Total assessments" />
           <MetricCard icon={Award} label="Avg Quiz" value={avgQuiz} subtitle="Out of 100" />
@@ -67,6 +69,7 @@ export default function DashboardPage() {
           <MetricCard icon={Flame} label="Streak" value={`${streak} day${streak !== 1 ? 's' : ''}`} subtitle="Keep it up!" />
         </div>
 
+        {/* Latest result banner */}
         {latest && (
           <div className="mt-6 animate-slide-up rounded-xl border border-success/20 bg-success/5 px-5 py-4">
             <div className="flex items-center gap-3">
@@ -79,6 +82,7 @@ export default function DashboardPage() {
         )}
 
         <div className="mt-6 grid lg:grid-cols-5 gap-6">
+          {/* Latest assessment detail */}
           <div className="lg:col-span-2 rounded-xl border bg-card p-6 shadow-soft animate-fade-in">
             <h3 className="font-semibold flex items-center gap-2">
               <BookOpen className="h-4 w-4 text-muted-foreground" /> Latest Assessment
@@ -112,6 +116,7 @@ export default function DashboardPage() {
             )}
           </div>
 
+          {/* Progress overview */}
           <div className="lg:col-span-3 rounded-xl border bg-card p-6 shadow-soft animate-fade-in">
             <h3 className="font-semibold mb-4">Progress by Course</h3>
             {Object.keys(courseBreakdown).length > 0 ? (
@@ -137,6 +142,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* History table */}
         {assessments.length > 0 && (
           <div className="mt-6 rounded-xl border bg-card p-6 shadow-soft animate-fade-in">
             <h3 className="font-semibold mb-4">Assessment History</h3>
@@ -178,6 +184,7 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Academic signal */}
         <div className="mt-6 grid sm:grid-cols-3 gap-4 stagger-children">
           <div className="rounded-xl border bg-card p-5 shadow-soft text-center">
             <ProgressRing value={avgQuiz} size={72} strokeWidth={6} label="Quiz Avg" />

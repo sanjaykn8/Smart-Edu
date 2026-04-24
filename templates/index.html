@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Smart Education · Learn better{% endblock %}
+{% block content %}
+<div class="hero-shell p-4 p-lg-5 rounded-4 mb-4">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-7">
+      <span class="badge text-bg-light mb-3">Adaptive learning dashboard</span>
+      <h1 class="display-5 fw-bold mb-3">A sharper path through study, practice, and assessment.</h1>
+      <p class="lead text-secondary mb-4">
+        Track performance, infer proficiency, and push the next best course instead of dumping learners into a dead form.
+      </p>
+      <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}">Start now</a>
+        <a class="btn btn-outline-secondary btn-lg" href="{{ url_for('login') }}">Login</a>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="glass-card p-4 rounded-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Dataset signals</h5>
+          <span class="badge text-bg-primary-subtle text-primary">10,000 rows</span>
+        </div>
+        <div class="row g-3">
+          {% for course, info in course_insights.items() %}
+          <div class="col-12">
+            <div class="mini-stat">
+              <div class="d-flex justify-content-between">
+                <strong>{{ course }}</strong>
+                <span class="text-secondary">{{ info.count }} records</span>
+              </div>
+              <div class="small text-secondary">Avg quiz {{ info.avg_quiz }} · exam {{ info.avg_exam }} · time {{ info.avg_time }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="feature-card h-100">
+      <i class="bi bi-stars fs-1"></i>
+      <h5 class="mt-3">Proficiency inference</h5>
+      <p class="text-secondary mb-0">Scores are turned into a usable level, not buried in a spreadsheet.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="feature-card h-100">
+      <i class="bi bi-graph-up-arrow fs-1"></i>
+      <h5 class="mt-3">Progress tracking</h5>
+      <p class="text-secondary mb-0">Every assessment is stored and shown back on the dashboard.</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="feature-card h-100">
+      <i class="bi bi-moon-stars fs-1"></i>
+      <h5 class="mt-3">Dark and light mode</h5>
+      <p class="text-secondary mb-0">A clean interface that does not blind the user at night.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

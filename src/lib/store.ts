@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
 export interface User {
   email: string;
@@ -68,12 +68,6 @@ function recommendCourse(course: string, proficiency: string, quiz: number, exam
 
 export { inferProficiency, recommendCourse };
 
-const darkClass = (enabled: boolean) => {
-  if (typeof document !== 'undefined') {
-    document.documentElement.classList.toggle('dark', enabled);
-  }
-};
-
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
@@ -88,22 +82,23 @@ export const useAppStore = create<AppState>()(
       addAssessment: (assessment) => set((state) => ({ assessments: [...state.assessments, assessment] })),
       toggleDarkMode: () => set((state) => {
         const next = !state.darkMode;
-        darkClass(next);
+        document.documentElement.classList.toggle('dark', next);
         return { darkMode: next };
       }),
     }),
     {
       name: 'smart-edu-store',
-      storage: createJSONStorage(() => localStorage),
+      // Only persist user and assessments; selectedCourse/Level are transient
       partialize: (state) => ({
         user: state.user,
-        selectedCourse: state.selectedCourse,
-        selectedLevel: state.selectedLevel,
         assessments: state.assessments,
         darkMode: state.darkMode,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state) darkClass(state.darkMode);
+        // Re-apply dark mode class after hydration
+        if (state?.darkMode) {
+          document.documentElement.classList.add('dark');
+        }
       },
     }
   )

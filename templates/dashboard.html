@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard · Smart Education{% endblock %}
+{% block content %}
+<div class="row g-4 mb-4">
+  <div class="col-12">
+    <div class="hero-shell p-4 p-lg-5 rounded-4">
+      <div class="d-flex justify-content-between flex-wrap gap-3 align-items-center">
+        <div>
+          <div class="text-uppercase text-secondary small mb-2">Learning dashboard</div>
+          <h1 class="fw-bold mb-2">Good to see you, {{ username }}.</h1>
+          <p class="text-secondary mb-0">This is the active record of the user, not a decorative screen.</p>
+        </div>
+        <a class="btn btn-primary btn-lg" href="{{ url_for('select_course') }}">Take another assessment</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-3 col-6"><div class="metric-card"><div class="label">Attempts</div><div class="value">{{ attempts }}</div></div></div>
+  <div class="col-md-3 col-6"><div class="metric-card"><div class="label">Avg quiz</div><div class="value">{{ avg_quiz }}</div></div></div>
+  <div class="col-md-3 col-6"><div class="metric-card"><div class="label">Avg exam</div><div class="value">{{ avg_exam }}</div></div></div>
+  <div class="col-md-3 col-6"><div class="metric-card"><div class="label">Dominant level</div><div class="value small">{{ dominant }}</div></div></div>
+</div>
+
+{% if latest_result %}
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="alert alert-success shadow-sm">
+      Latest result: <strong>{{ latest_result.proficiency }}</strong> · Recommended next step: <strong>{{ latest_result.recommended_course }}</strong>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="row g-4 mb-4">
+  <div class="col-lg-5">
+    <div class="card glass-card border-0 h-100 shadow-lg">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-3">Latest assessment</h4>
+        {% if latest %}
+          <div class="stack-list">
+            <div><span class="text-secondary">Course</span><strong>{{ latest.course }}</strong></div>
+            <div><span class="text-secondary">Level</span><strong>{{ latest.level }}</strong></div>
+            <div><span class="text-secondary">Proficiency</span><strong>{{ latest.proficiency }}</strong></div>
+            <div><span class="text-secondary">Recommended</span><strong>{{ latest.recommended_course }}</strong></div>
+            <div><span class="text-secondary">Study plan</span><span>{{ latest.study_plan }}</span></div>
+          </div>
+        {% else %}
+          <p class="text-secondary mb-0">No assessment yet. Complete one to generate a record.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card glass-card border-0 h-100 shadow-lg">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-3">Recent progress</h4>
+        {% if progress %}
+        <div class="table-responsive">
+          <table class="table align-middle table-borderless">
+            <thead>
+              <tr class="text-secondary small text-uppercase">
+                <th>Course</th>
+                <th>Level</th>
+                <th>Proficiency</th>
+                <th>Recommended</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in progress %}
+              <tr>
+                <td>{{ row.course }}</td>
+                <td>{{ row.level }}</td>
+                <td><span class="status-pill status-{{ row.proficiency|lower }}">{{ row.proficiency }}</span></td>
+                <td>{{ row.recommended_course }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state">No records yet. Run an assessment and the dashboard will stop being empty.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card glass-card border-0 shadow-lg h-100">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-3">Academic signal</h4>
+        <div class="d-flex justify-content-between small text-secondary mb-2"><span>Average time spent</span><span>{{ avg_time }} hours</span></div>
+        <div class="progress mb-3" style="height: 10px;"><div class="progress-bar" style="width: {{ avg_time if avg_time < 100 else 100 }}%;"></div></div>
+        <p class="text-secondary mb-0">The data shows where the user is investing effort. The app should react to that, not ignore it.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card glass-card border-0 shadow-lg h-100">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-3">Next move</h4>
+        {% if latest %}
+          <p class="mb-2"><strong>{{ latest.recommended_course }}</strong></p>
+          <p class="text-secondary mb-0">{{ latest.study_plan }}</p>
+        {% else %}
+          <p class="text-secondary mb-0">Take the first assessment to unlock a recommendation.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

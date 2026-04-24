@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Login · Smart Education{% endblock %}
+{% block content %}
+<div class="auth-wrap row justify-content-center">
+  <div class="col-lg-5 col-md-7">
+    <div class="card glass-card border-0 shadow-lg">
+      <div class="card-body p-4 p-lg-5">
+        <h2 class="fw-bold mb-2">Welcome back</h2>
+        <p class="text-secondary mb-4">Log in and continue the learning trail.</p>
+        <form method="POST" class="vstack gap-3">
+          <div>
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control form-control-lg" name="email" required>
+          </div>
+          <div>
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control form-control-lg" name="password" required>
+          </div>
+          <button class="btn btn-primary btn-lg w-100" type="submit">Login</button>
+        </form>
+        <div class="mt-4 text-center text-secondary">
+          New here? <a href="{{ url_for('register') }}">Create an account</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
