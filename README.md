@@ -4,20 +4,21 @@ A personalized learning platform with AI-driven assessments and course recommend
 
 ## What's inside
 
-This repo contains **two standalone apps** that share the same logic:
+This repo contains a **legacy Python app** and the **primary React + Node API app**.
 
 | Layer | Stack | Entry point |
 |---|---|---|
-| Python backend | stdlib WSGI + Jinja2 + SQLite + pandas | `app.py` |
+| Legacy Python app | stdlib WSGI + Jinja2 + SQLite + pandas | `app.py` |
 | React frontend | Vite + React 18 + Zustand + shadcn/ui | `src/` |
+| API server | Express + mysql2 | `server.cjs` |
 
-Both implement the same proficiency inference and course recommendation engine.
+The React app is the main product surface. The API server fetches quiz questions from MySQL and saves assessment attempts back into MySQL.
 
 ---
 
-## Python backend
+## Legacy Python app
 
-No framework dependencies — pure stdlib WSGI with Jinja2 for templating.
+This path is kept for reference. The main working flow is the React + Node API setup below.
 
 ```bash
 pip install -r requirements.txt
@@ -36,10 +37,18 @@ Set `PORT` env var to use a different port.
 
 ---
 
-## React frontend
+## React frontend + API server
+
+Run the API server in one terminal:
 
 ```bash
 npm install
+npm run server
+```
+
+Run the Vite client in another terminal:
+
+```bash
 npm run dev
 ```
 
@@ -51,6 +60,8 @@ npm run preview # serve the production build locally
 ```
 
 ### Features
+- Quiz questions are fetched from MySQL
+- Assessment submission is scored by the API and stored in `quiz_attempts`
 - All state persisted to `localStorage` via Zustand (survives page refresh)
 - Dark / light mode toggle with persistence
 - Guided multi-step flow: Course → Assessment → Results → Dashboard
@@ -58,14 +69,7 @@ npm run preview # serve the production build locally
 
 ---
 
-## Proficiency logic
+## Scoring logic
 
-Both apps use the same formula:
+The quiz score is based on correct answers out of 5. Video hours are normalized into a small supporting signal, and the API combines both into an overall readiness score.
 
-```
-score = 0.45 × exam + 0.40 × quiz + 0.15 × clamp(time / 5, 0, 20)
-
-≥ 78  → Advanced
-≥ 52  → Intermediate
-< 52  → Beginner
-```

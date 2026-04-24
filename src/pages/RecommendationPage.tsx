@@ -5,7 +5,7 @@ import { TopNav } from '@/components/TopNav';
 import { StepIndicator } from '@/components/StepIndicator';
 import { ProgressRing } from '@/components/ProgressRing';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles, BookOpen, Target } from 'lucide-react';
+import { ArrowRight, Sparkles, BookOpen, Target, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function RecommendationPage() {
@@ -19,7 +19,8 @@ export default function RecommendationPage() {
 
   if (!latest || !user) return null;
 
-  const proficiencyScore = latest.proficiency === 'Advanced' ? 90 : latest.proficiency === 'Intermediate' ? 60 : 30;
+  const overallScore = latest.examScore;
+  const proficiencyScore = latest.proficiency === 'Advanced' ? 90 : latest.proficiency === 'Intermediate' ? 68 : 35;
   const proficiencyColor = latest.proficiency === 'Advanced' ? 'hsl(142 71% 45%)' : latest.proficiency === 'Intermediate' ? 'hsl(38 92% 50%)' : 'hsl(230 65% 55%)';
 
   const steps = [
@@ -37,11 +38,10 @@ export default function RecommendationPage() {
 
         <div className="animate-fade-in">
           <h1 className="text-3xl font-bold tracking-tight">Your Results</h1>
-          <p className="mt-2 text-muted-foreground">Here's what we found based on your assessment.</p>
+          <p className="mt-2 text-muted-foreground">Your quiz, video hours, and overall readiness are now combined.</p>
         </div>
 
         <div className="mt-8 grid gap-6 stagger-children">
-          {/* Proficiency card */}
           <div className="rounded-xl border bg-card p-6 shadow-soft">
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <ProgressRing value={proficiencyScore} size={100} strokeWidth={8} color={proficiencyColor} label="Proficiency" />
@@ -51,16 +51,15 @@ export default function RecommendationPage() {
                   <span className="text-sm text-muted-foreground">{latest.course} · {latest.level}</span>
                 </div>
                 <h2 className="mt-1 text-2xl font-bold">{latest.proficiency}</h2>
-                <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                <div className="mt-3 flex flex-wrap gap-4 justify-center sm:justify-start text-sm text-muted-foreground">
                   <span>Quiz: <span className="font-semibold text-foreground">{latest.quizScore}</span></span>
-                  <span>Exam: <span className="font-semibold text-foreground">{latest.examScore}</span></span>
-                  <span>Time: <span className="font-semibold text-foreground">{latest.timeSpent}h</span></span>
+                  <span>Hours: <span className="font-semibold text-foreground">{latest.timeSpent}</span></span>
+                  <span>Overall: <span className="font-semibold text-foreground">{overallScore}</span></span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* AI Recommendation - subtle */}
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-6">
             <div className="flex items-start gap-3">
               <div className="mt-0.5 rounded-lg bg-primary/10 p-2">
@@ -74,7 +73,6 @@ export default function RecommendationPage() {
             </div>
           </div>
 
-          {/* Study plan breakdown */}
           <div className="rounded-xl border bg-card p-6 shadow-soft">
             <div className="flex items-center gap-2 mb-4">
               <BookOpen className="h-4 w-4 text-muted-foreground" />
@@ -92,6 +90,16 @@ export default function RecommendationPage() {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="rounded-xl border bg-card p-6 shadow-soft">
+            <div className="flex items-center gap-2 mb-4">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-semibold">What the score means</h3>
+            </div>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              The dashboard uses your video hours and quiz result together. More watched content helps, but the quiz still controls most of the signal.
+            </p>
           </div>
         </div>
 

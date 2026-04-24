@@ -13,9 +13,9 @@ export interface Assessment {
   age: number;
   educationLevel: string;
   learningStyle: string;
-  timeSpent: number;
+  timeSpent: number; // video hours watched
   quizScore: number;
-  examScore: number;
+  examScore: number; // overall score derived from quiz + video hours
   proficiency: string;
   recommendedCourse: string;
   studyPlan: string;
@@ -32,41 +32,61 @@ interface AppState {
   logout: () => void;
   selectCourse: (course: string, level: string) => void;
   addAssessment: (assessment: Assessment) => void;
+  setAssessments: (assessments: Assessment[]) => void;
   toggleDarkMode: () => void;
 }
 
-function inferProficiency(quiz: number, exam: number, time: number): string {
-  const timeFactor = Math.min(Math.max(time / 5, 0), 20);
-  const total = 0.45 * Math.min(Math.max(exam, 0), 100) + 0.40 * Math.min(Math.max(quiz, 0), 100) + 0.15 * timeFactor;
-  if (total >= 78) return 'Advanced';
-  if (total >= 52) return 'Intermediate';
+const clamp = (value: number, low: number, high: number) => Math.max(low, Math.min(high, value));
+
+export function computeOverallScore(quizScore: number, videoHours: number): number {
+  const videoScore = clamp(videoHours * 10, 0, 100);
+  return Math.round(0.75 * clamp(quizScore, 0, 100) + 0.25 * videoScore);
+}
+
+export function inferProficiency(quizScore: number, videoHours: number): string {
+  const overall = computeOverallScore(quizScore, videoHours);
+  if (overall >= 80) return 'Advanced';
+  if (overall >= 60) return 'Intermediate';
   return 'Beginner';
 }
 
-function recommendCourse(course: string, proficiency: string, quiz: number, exam: number, time: number): [string, string] {
-  let nextCourse: string;
-  let plan: string;
+export function recommendCourse(course: string, proficiency: string, quizScore: number, videoHours: number): [string, string] {
+  const overall = computeOverallScore(quizScore, videoHours);
 
   if (proficiency === 'Beginner') {
-    nextCourse = course !== 'Python Basics' ? 'Python Basics' : 'Web Development';
-    plan = 'Start with short practice loops, core syntax, and one concept per session.';
-  } else if (proficiency === 'Intermediate') {
-    nextCourse = exam >= quiz ? 'Data Science' : 'Web Development';
-    if (course === 'Data Science') nextCourse = 'Machine Learning';
-    plan = 'Push into project work: build, review mistakes, and repeat with tighter feedback.';
-  } else {
-    nextCourse = exam >= 80 ? 'Machine Learning' : 'Cybersecurity';
-    if (course === 'Machine Learning') nextCourse = quiz < 85 ? 'Cybersecurity' : 'Machine Learning';
-    plan = 'Work on capstone-level problems and stop studying passively. Build in public.';
+    if (course === 'Python Basics') {
+      return ['Python Basics', 'Rebuild the fundamentals with short, deliberate practice. Focus on syntax, repetition, and one concept per session.'];
+    }
+    return ['Python Basics', 'Reset to fundamentals first. Weak foundations get expensive later.'];
   }
 
-  if (time < 2) plan += ' Your study time is too thin — increase it for deeper results.';
-  else if (time > 8) plan += ' Good volume, but structure matters more than raw hours.';
+  if (proficiency === 'Intermediate') {
+    if (course === 'Python Basics') {
+      return ['Web Development', 'You are ready to move from syntax into building. Work through HTML, CSS, and JavaScript with tiny projects.'];
+    }
+    if (course === 'Web Development') {
+      return ['Data Science', 'Move into structured analysis next. Start reading data, cleaning it, and turning it into useful signals.'];
+    }
+    if (course === 'Data Science') {
+      return ['Machine Learning', 'Your next edge is modeling. Start with supervised learning, evaluation, and feature engineering.'];
+    }
+    return ['Cybersecurity', 'Strengthen practical defense skills while you keep sharpening your technical depth.'];
+  }
 
-  return [nextCourse, plan];
+  if (course === 'Machine Learning') {
+    return ['Cybersecurity', 'Go wider and harder: security awareness, hardening, and attack surfaces matter at this stage.'];
+  }
+
+  if (course === 'Cybersecurity') {
+    return ['Machine Learning', 'You are strong enough to branch into models, evaluation, and automation.'];
+  }
+
+  if (overall >= 85) {
+    return ['Machine Learning', 'You have enough control to handle advanced model work and bigger technical systems.'];
+  }
+
+  return ['Cybersecurity', 'Your execution is strong, but security thinking will make it sharper and more complete.'];
 }
-
-export { inferProficiency, recommendCourse };
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -80,23 +100,25 @@ export const useAppStore = create<AppState>()(
       logout: () => set({ user: null, selectedCourse: null, selectedLevel: null, assessments: [] }),
       selectCourse: (course, level) => set({ selectedCourse: course, selectedLevel: level }),
       addAssessment: (assessment) => set((state) => ({ assessments: [...state.assessments, assessment] })),
-      toggleDarkMode: () => set((state) => {
-        const next = !state.darkMode;
-        document.documentElement.classList.toggle('dark', next);
-        return { darkMode: next };
-      }),
+      setAssessments: (assessments) => set({ assessments }),
+      toggleDarkMode: () =>
+        set((state) => {
+          const next = !state.darkMode;
+          if (typeof document !== 'undefined') {
+            document.documentElement.classList.toggle('dark', next);
+          }
+          return { darkMode: next };
+        }),
     }),
     {
       name: 'smart-edu-store',
-      // Only persist user and assessments; selectedCourse/Level are transient
       partialize: (state) => ({
         user: state.user,
         assessments: state.assessments,
         darkMode: state.darkMode,
       }),
       onRehydrateStorage: () => (state) => {
-        // Re-apply dark mode class after hydration
-        if (state?.darkMode) {
+        if (state?.darkMode && typeof document !== 'undefined') {
           document.documentElement.classList.add('dark');
         }
       },
