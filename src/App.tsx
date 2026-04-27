@@ -7,6 +7,7 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import CourseSelectionPage from "./pages/CourseSelectionPage";
+import VideosPage from "./pages/VideosPage";
 import AssessmentPage from "./pages/AssessmentPage";
 import RecommendationPage from "./pages/RecommendationPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/courses" element={<CourseSelectionPage />} />
+          <Route path="/videos" element={<VideosPage />} />
           <Route path="/assessment" element={<AssessmentPage />} />
           <Route path="/recommendation" element={<RecommendationPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />

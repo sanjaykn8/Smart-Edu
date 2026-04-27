@@ -5,15 +5,12 @@ import { fetchQuizQuestions, submitAssessment, type QuizQuestion } from '@/lib/a
 import { TopNav } from '@/components/TopNav';
 import { StepIndicator } from '@/components/StepIndicator';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ArrowRight, Loader2, RefreshCcw, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Loader2, RefreshCcw, CheckCircle2, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function AssessmentPage() {
-  const { selectedCourse, selectedLevel, addAssessment, user } = useAppStore();
+  const { selectedCourse, selectedLevel, addAssessment, user, videoHoursWatched } = useAppStore();
   const navigate = useNavigate();
-  const [videoHours, setVideoHours] = useState('');
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(false);
@@ -73,12 +70,6 @@ export default function AssessmentPage() {
       return;
     }
 
-    const hours = Number(videoHours);
-    if (!Number.isFinite(hours) || hours < 0) {
-      setError('Enter a valid number of video hours.');
-      return;
-    }
-
     const quizAnswers = questions.map((q) => ({
       questionId: q.id,
       selectedOption: answers[q.id],
@@ -93,7 +84,7 @@ export default function AssessmentPage() {
         username: user.username,
         course: selectedCourse,
         level: selectedLevel || 'Beginner',
-        videoHours: hours,
+        videoHours: videoHoursWatched, // auto-tracked from YouTube videos
         answers: quizAnswers,
       });
 
@@ -108,12 +99,14 @@ export default function AssessmentPage() {
 
   const steps = [
     { label: 'Course', completed: true, active: false },
-    { label: 'Assessment', completed: false, active: true },
+    { label: 'Videos', completed: true, active: false },
+    { label: 'Quiz', completed: false, active: true },
     { label: 'Results', completed: false, active: false },
     { label: 'Dashboard', completed: false, active: false },
   ];
 
   const answeredCount = Object.keys(answers).length;
+  const watchedHoursDisplay = videoHoursWatched.toFixed(2);
 
   return (
     <div className="min-h-screen bg-background">
@@ -122,37 +115,39 @@ export default function AssessmentPage() {
         <div className="mb-8"><StepIndicator steps={steps} /></div>
 
         <div className="animate-fade-in">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Assessment</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Quiz</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight">{selectedCourse}</h1>
           <p className="mt-2 text-muted-foreground">
             {selectedLevel} · {user.username}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Enter the hours of video you watched, answer 5 questions, and the system will calculate your score and update your dashboard.
+            Answer all 5 questions. Your video watch time has already been recorded automatically.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <div className="rounded-xl border bg-card p-5 shadow-soft">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div className="space-y-2">
-                <Label htmlFor="video-hours">Video hours watched</Label>
-                <Input
-                  id="video-hours"
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  value={videoHours}
-                  onChange={(e) => setVideoHours(e.target.value)}
-                  className="h-11 sm:w-56"
-                  placeholder="e.g. 2.5"
-                  required
-                />
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {answeredCount}/{questions.length || 5} answered
-              </div>
-            </div>
+        {/* Auto-tracked video hours info banner */}
+        <div className="mt-6 flex items-center gap-3 rounded-xl border bg-card px-5 py-3 shadow-soft">
+          <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+          <p className="text-sm">
+            <span className="text-muted-foreground">Video watch time banked: </span>
+            <span className="font-semibold">{watchedHoursDisplay}h</span>
+            {videoHoursWatched === 0 && (
+              <span className="ml-2 text-xs text-muted-foreground">
+                (no videos watched — <button
+                  type="button"
+                  onClick={() => navigate('/videos')}
+                  className="underline hover:text-foreground"
+                >
+                  go back to watch
+                </button>)
+              </span>
+            )}
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+          <div className="flex justify-end text-sm text-muted-foreground">
+            {answeredCount}/{questions.length || 5} answered
           </div>
 
           {loading ? (
@@ -238,7 +233,6 @@ export default function AssessmentPage() {
               variant="outline"
               className="h-11 gap-2 px-6"
               onClick={() => {
-                setVideoHours('');
                 setAnswers({});
                 setError('');
                 if (selectedCourse && selectedLevel) {

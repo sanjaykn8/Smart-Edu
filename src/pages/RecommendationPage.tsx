@@ -25,7 +25,8 @@ export default function RecommendationPage() {
 
   const steps = [
     { label: 'Course', completed: true, active: false },
-    { label: 'Assessment', completed: true, active: false },
+    { label: 'Videos', completed: true, active: false },
+    { label: 'Quiz', completed: true, active: false },
     { label: 'Results', completed: false, active: true },
     { label: 'Dashboard', completed: false, active: false },
   ];
@@ -38,7 +39,7 @@ export default function RecommendationPage() {
 
         <div className="animate-fade-in">
           <h1 className="text-3xl font-bold tracking-tight">Your Results</h1>
-          <p className="mt-2 text-muted-foreground">Your quiz, video hours, and overall readiness are now combined.</p>
+          <p className="mt-2 text-muted-foreground">Your quiz score and auto-tracked video watch time are combined.</p>
         </div>
 
         <div className="mt-8 grid gap-6 stagger-children">
@@ -53,7 +54,7 @@ export default function RecommendationPage() {
                 <h2 className="mt-1 text-2xl font-bold">{latest.proficiency}</h2>
                 <div className="mt-3 flex flex-wrap gap-4 justify-center sm:justify-start text-sm text-muted-foreground">
                   <span>Quiz: <span className="font-semibold text-foreground">{latest.quizScore}</span></span>
-                  <span>Hours: <span className="font-semibold text-foreground">{latest.timeSpent}</span></span>
+                  <span>Video hrs: <span className="font-semibold text-foreground">{Number(latest.timeSpent).toFixed(2)}</span></span>
                   <span>Overall: <span className="font-semibold text-foreground">{overallScore}</span></span>
                 </div>
               </div>

@@ -82,7 +82,7 @@ export default function DashboardPage() {
         <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
           <MetricCard icon={Hash} label="Attempts" value={attempts} subtitle="Total assessments" />
           <MetricCard icon={Award} label="Avg Quiz" value={avgQuiz} subtitle="Out of 100" />
-          <MetricCard icon={Clock} label="Avg Hours" value={avgHours} subtitle="Video watched" />
+          <MetricCard icon={Clock} label="Avg Hours" value={avgHours} subtitle="Auto-tracked hours" />
           <MetricCard icon={Flame} label="Streak" value={`${streak} day${streak !== 1 ? 's' : ''}`} subtitle="Keep it up!" />
         </div>
 
@@ -180,7 +180,7 @@ export default function DashboardPage() {
                       <td className="py-3 font-medium">{a.course}</td>
                       <td className="py-3">{a.level}</td>
                       <td className="py-3">{a.quizScore}</td>
-                      <td className="py-3">{a.timeSpent}</td>
+                      <td className="py-3">{Number(a.timeSpent).toFixed(2)}</td>
                       <td className="py-3">{a.examScore}</td>
                       <td className="py-3">
                         <span className={cn(

@@ -33,13 +33,14 @@ export default function CourseSelectionPage() {
   const handleContinue = () => {
     if (selected) {
       selectCourse(selected, level);
-      navigate('/assessment');
+      navigate('/videos');
     }
   };
 
   const steps = [
     { label: 'Course', completed: false, active: true },
-    { label: 'Assessment', completed: false, active: false },
+    { label: 'Videos', completed: false, active: false },
+    { label: 'Quiz', completed: false, active: false },
     { label: 'Results', completed: false, active: false },
     { label: 'Dashboard', completed: false, active: false },
   ];

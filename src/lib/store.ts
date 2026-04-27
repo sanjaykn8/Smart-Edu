@@ -13,7 +13,7 @@ export interface Assessment {
   age: number;
   educationLevel: string;
   learningStyle: string;
-  timeSpent: number; // video hours watched
+  timeSpent: number; // video hours watched (auto-tracked)
   quizScore: number;
   examScore: number; // overall score derived from quiz + video hours
   proficiency: string;
@@ -28,12 +28,21 @@ interface AppState {
   selectedLevel: string | null;
   assessments: Assessment[];
   darkMode: boolean;
+  /** Accumulated YouTube watch time in hours for the current assessment flow. */
+  videoHoursWatched: number;
   login: (user: User) => void;
   logout: () => void;
   selectCourse: (course: string, level: string) => void;
   addAssessment: (assessment: Assessment) => void;
   setAssessments: (assessments: Assessment[]) => void;
   toggleDarkMode: () => void;
+  /**
+   * Called by VideosPage when a YouTube video finishes.
+   * Pass the raw duration in **seconds**; the store converts to hours.
+   */
+  addVideoHours: (seconds: number) => void;
+  /** Reset watch time (called internally when a new course is selected). */
+  resetVideoHours: () => void;
 }
 
 const clamp = (value: number, low: number, high: number) => Math.max(low, Math.min(high, value));
@@ -96,11 +105,32 @@ export const useAppStore = create<AppState>()(
       selectedLevel: null,
       assessments: [],
       darkMode: false,
+      videoHoursWatched: 0,
+
       login: (user) => set({ user }),
-      logout: () => set({ user: null, selectedCourse: null, selectedLevel: null, assessments: [] }),
-      selectCourse: (course, level) => set({ selectedCourse: course, selectedLevel: level }),
-      addAssessment: (assessment) => set((state) => ({ assessments: [...state.assessments, assessment] })),
+
+      logout: () =>
+        set({
+          user: null,
+          selectedCourse: null,
+          selectedLevel: null,
+          assessments: [],
+          videoHoursWatched: 0,
+        }),
+
+      selectCourse: (course, level) =>
+        set({
+          selectedCourse: course,
+          selectedLevel: level,
+          // Reset watch time whenever the user picks a new course
+          videoHoursWatched: 0,
+        }),
+
+      addAssessment: (assessment) =>
+        set((state) => ({ assessments: [...state.assessments, assessment] })),
+
       setAssessments: (assessments) => set({ assessments }),
+
       toggleDarkMode: () =>
         set((state) => {
           const next = !state.darkMode;
@@ -109,6 +139,13 @@ export const useAppStore = create<AppState>()(
           }
           return { darkMode: next };
         }),
+
+      addVideoHours: (seconds) =>
+        set((state) => ({
+          videoHoursWatched: state.videoHoursWatched + seconds / 3600,
+        })),
+
+      resetVideoHours: () => set({ videoHoursWatched: 0 }),
     }),
     {
       name: 'smart-edu-store',
@@ -116,6 +153,7 @@ export const useAppStore = create<AppState>()(
         user: state.user,
         assessments: state.assessments,
         darkMode: state.darkMode,
+        // videoHoursWatched is NOT persisted — it resets each session/course
       }),
       onRehydrateStorage: () => (state) => {
         if (state?.darkMode && typeof document !== 'undefined') {
